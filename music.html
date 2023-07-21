@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的精神家园-音乐</title>
+
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        #canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            opacity: 0.5;
+            width: 100%;
+            height: 100%;
+        }
+
+        #backButton {
+            position: fixed;
+            /* Fixes the position of the button to the top-left of the page */
+            top: 30px;
+            /* Position from the top */
+            left: 20px;
+            /* Position from the left */
+            z-index: 10;
+        }
+
+        #backButton img {
+            width: 25px;
+            /* Adjust as needed */
+            height: 25px;
+            /* Adjust as needed */
+        }
+
+        .shell {
+            width: 100%;
+            position: relative;
+            padding: 80px 0;
+            transition: 0.3s ease 0s;
+            background-attachment: fixed;
+            background-size: cover;
+        }
+
+        .shell:before {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(99, 99, 99, 0.8);
+            content: "";
+        }
+
+        .header {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 80px;
+            position: relative;
+        }
+
+        #scrollPrompt {
+            position: absolute;
+            font-family: simsun;
+            top: 150%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #eeeeee;
+            font-size: 15px;
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            border-radius: 5px;
+            opacity: 0;
+            transition: opacity 1s;
+        }
+
+
+        .title {
+            color: #fff;
+            font-size: 46px;
+            font-weight: normal;
+            margin: 0;
+        }
+
+        .timeline {
+            display: flex;
+            margin: 0 auto;
+            flex-wrap: wrap;
+            flex-direction: column;
+            max-width: 700px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .content-title {
+            font-weight: normal;
+            font-size: 66px;
+            margin: -10px 0 0 0;
+            transition: 0.4s;
+            padding: 0 10px;
+            box-sizing: border-box;
+            color: #fff;
+            z-index: 10;
+        }
+
+        .content-desc {
+            margin: 0;
+            font-size: 15px;
+            box-sizing: border-box;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 25px;
+            z-index: 10;
+        }
+
+        .timeline:before {
+            position: absolute;
+            left: 50%;
+            width: 2px;
+            height: 100%;
+            margin-left: -1px;
+            content: "";
+            background: rgba(255, 255, 255, 0.07);
+            z-index: 10;
+        }
+
+        .item {
+            padding: 40px 0;
+            opacity: 0.3;
+            filter: blur(2px);
+            transition: 0.5s;
+            box-sizing: border-box;
+            width: calc(50% - 40px);
+            display: flex;
+            position: relative;
+            transform: translateY(-80px);
+            z-index: 10;
+        }
+
+        .item:before {
+            content: attr(data-text);
+            letter-spacing: 3px;
+            width: 100%;
+            position: absolute;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 13px;
+            border-left: 2px solid rgba(255, 255, 255, 0.5);
+            top: 70%;
+            margin-top: -5px;
+            padding-left: 15px;
+            opacity: 0;
+            right: calc(-100% - 56px);
+            font: 900 20px '';
+            letter-spacing: 5px;
+            z-index: 10;
+        }
+
+        .item:nth-child(even) {
+            align-self: flex-end;
+        }
+
+        .item:nth-child(even):before {
+            right: auto;
+            text-align: right;
+            left: calc(-100% - 56px);
+            padding-left: 0;
+            border-left: none;
+            border-right: 2px solid rgba(255, 255, 255, 0.5);
+            padding-right: 15px;
+        }
+
+        .item--active {
+            opacity: 1;
+            transform: translateY(0);
+            filter: blur(0px);
+        }
+
+        .item--active:before {
+            top: 50%;
+            transition: 0.3s all 0.2s;
+            opacity: 1;
+        }
+
+        .item--active .content-title {
+            margin: -50px 0 20px 0;
+        }
+
+        .img {
+            max-width: 100%;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 16px;
+            letter-spacing: 5px;
+            margin: 10px 0 0 0;
+            font-weight: normal;
+        }
+
+        .footer {
+            padding: 95px 0;
+            text-align: center;
+        }
+
+        .footer a {
+            color: #999;
+            display: inline-block;
+        }
+
+        @media only screen and (max-width: 767px) {
+            .item {
+                align-self: baseline !important;
+                width: 100%;
+                padding: 0 30px 150px 80px;
+            }
+
+            .item:before {
+                left: 10px !important;
+                padding: 0 !important;
+                top: 50px;
+                text-align: center !important;
+                width: 60px;
+                border: none !important;
+            }
+
+            .item:last-child {
+                padding-bottom: 40px;
+            }
+        }
+
+        @media only screen and (max-width: 767px) {
+            .timeline:before {
+                left: 40px;
+            }
+        }
+
+        .content-title {
+            text-shadow: 2px 2px 4px rgba(150, 150, 150, 0.5);
+        }
+    </style>
+</head>
+
+<body>
+    <a href="my_website/archor_of_my_spirit.html" id="backButton">
+        <img src="/images/返回.svg" alt="Back">
+    </a>
+    <canvas id="canvas"></canvas>
+    <div class="shell" id="shell">
+        <div class="header">
+            <h2 class="title">月度音乐墙</h2>
+            <h3 class="subtitle">-我的精神家园-</h3>
+            <div id="scrollPrompt">
+                <滑动页面开始播放>
+            </div>
+        </div>
+        <div class="timeline">
+            <div class="item" data-text="吟游诗人-陈奕迅">
+                <div class="content">
+                    <img src="./img/吟游诗人.jpg" alt="" class="img">
+                    <h2 class="content-title">2023-7</h2>
+                    <p class="content-desc">
+                        镜子里面是谁，<br>
+                        是敢于冒险的玫瑰，<br>
+                        把书本打开翻到某一回，<br>
+                        出走一回。<br>
+                    </p>
+                    <audio class="music" id="music1" src="./music/陈奕迅 - 吟游诗人.mp3"></audio>
+                </div>
+            </div>
+
+            <div class="item" data-text="于是没有洗头-毛不易">
+                <div class="content">
+                    <img src="./img/于是没有洗头.png" alt="" class="img">
+                    <h2 class="content-title">2023-6</h2>
+                    <p class="content-desc">
+                        今天的自己还是一样的懒惰，<br>
+                        于是没有洗头，<br>
+                        没人发现，有点庆幸，有点失落。<br>
+                    </p>
+                    <audio class="music" id="music2" src="./music/毛不易 - 于是没有洗头.mp3"></audio>
+                </div>
+            </div>
+
+            <div class="item" data-text="没有理想的人不伤心-新裤子乐队">
+                <div class="content">
+                    <img src="./img/没有理想的人不伤心.jpg" alt="" class="img">
+                    <h2 class="content-title">2023-5</h2>
+                    <p class="content-desc">
+                        我不要在失败孤独中死去，<br>
+                        我不要一直活到地下里，<br>
+                        物质的骗局 匆匆的蚂蚁，<br>
+                        没有文化的人不伤心。<br>
+                    </p>
+                    <audio class="music" id="music3" src="./music/新裤子 - 没有理想的人不伤心.mp3"></audio>
+                </div>
+            </div>
+
+            <div class="item" data-text="历历万乡-陈粒">
+                <div class="content">
+                    <img src="./img/历历万乡.jpg" alt="" class="img">
+                    <h2 class="content-title">2023-4</h2>
+                    <p class="content-desc">
+                        她住在七月的洪流上，<br>
+                        天台倾倒理想一万丈，<br>
+                        她午睡在北风仓皇途径的芦苇荡。<br>
+                    </p>
+                    <audio class="music" id="music4" src="./music/陈粒 - 历历万乡.mp3"></audio>
+                </div>
+            </div>
+
+            <div class="item" data-text="我记得-赵雷">
+                <div class="content">
+                    <img src="./img/我记得.jpg" alt="" class="img">
+                    <h2 class="content-title">2023-3</h2>
+                    <p class="content-desc">
+                        不要哭我最亲爱的人，<br>
+                        时空是个圆圈，直行或是转弯，<br>
+                        我们最终都会相见。<br>
+                    </p>
+                    <audio class="music" id="music5" src="./music/赵雷 - 我记得.mp3"></audio>
+                </div>
+            </div>
+
+            <div class="item" data-text="Hallucinogenics-Lana Del Rey">
+                <div class="content">
+                    <img src="./img/Hallucinogenics.jpg" alt="" class="img">
+                    <h2 class="content-title">2023-2</h2>
+                    <p class="content-desc">
+                        Pushing pass the limit,<br>
+                        tripping on hallucinogenics,<br>
+                        my cigarette burtnt my figure<br>
+                        'cause I forgot I lit it.<br>
+                    </p>
+                    <audio class="music" id="music6"
+                        src="./music/Matt Maeson; Lana Del Rey - Hallucinogenics (feat. Lana Del Rey).mp3"></audio>
+                </div>
+            </div>
+
+            <div class="item" data-text="人生浪费指南-夏日入侵企画">
+                <div class="content">
+                    <img src="./img/人生浪费指南.jpg" alt="" class="img">
+                    <h2 class="content-title">2023-1</h2>
+                    <p class="content-desc">
+                        你已经想了太久，<br>
+                        可还是不能放手，<br>
+                        何时才能寻找你所说的自由。<br>
+                    </p>
+                    <audio class="music" id="music7" src="./music/夏日入侵企画 - 人生浪费指南.mp3"></audio>
+                </div>
+            </div>
+
+            <div class="item" data-text="Bones-Low Roar">
+                <div class="content">
+                    <img src="./img/Bones.jpg" alt="" class="img">
+                    <h2 class="content-title">2022-12</h2>
+                    <p class="content-desc">
+                        ‘Cause you're a part of me,<br>
+                        and I'm a part of you.<br>
+                    </p>
+                    <audio class="music" id="music8" src="./music/Low Roar; Jofridur Akadottir - Bones.mp3"></audio>
+                </div>
+            </div>
+
+            <div class="item" data-text="情色日-普信主义">
+                <div class="content">
+                    <img src="./img/情色日.png" alt="" class="img">
+                    <h2 class="content-title">2022-11</h2>
+                    <p class="content-desc">
+                        盲人的城市里，<br>
+                        不需要那么多路灯。<br>
+                        就算被绝望地、埋进泥土里面，<br>
+                        也不变成落叶。<br>
+                    </p>
+                    <audio class="music" id="music9" src="./music/普信主义; 阿诺捏 - 情色日.mp3"></audio>
+                </div>
+            </div>
+            <div class="item" data-text="没有更多了……">
+                <div class="content">
+                    <img src="./img/08.jpg" alt="" class="img">
+                    <h2 class="content-title">待补充，</h2>
+                    <p class="content-desc">
+                    </p>
+                    <audio id="music10" src="./music/普信主义; 阿诺捏 - 情色日.mp3"></audio>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+
+    <script>
+        (function ($) {
+            $.fn.timeline = function () {
+                var selectors = {
+                    id: $(this),
+                    item: $(this).find(".item"),
+                    activeClass: "item--active",
+                    img: ".img"
+                };
+                selectors.item.eq(0).addClass(selectors.activeClass);
+                selectors.id.css(
+                    "background-image",
+                    "url(" +
+                    selectors.item.first()
+                        .find(selectors.img)
+                        .attr("src") +
+                    ")"
+                );
+                var itemLength = selectors.item.length;
+                $(window).scroll(function () {
+                    document.getElementById("scrollPrompt").style.opacity = 0;
+                    var max, min;
+                    var pos = $(this).scrollTop();
+                    selectors.item.each(function (i) {
+                        min = $(this).offset().top;
+                        max = $(this).height() + $(this).offset().top;
+                        var that = $(this);
+                        if (i == itemLength - 2 && pos > min + $(this).height() / 2) {
+                            selectors.item.removeClass(selectors.activeClass);
+                            selectors.id.css(
+                                "background-image",
+                                "url(" +
+                                selectors.item.last()
+                                    .find(selectors.img)
+                                    .attr("src") +
+                                ")"
+                            );
+                            selectors.item.last().addClass(selectors.activeClass);
+                            $('.music').each(function () {
+                                this.pause();
+                            });
+                            $('#music' + (i + 1))[0].play();
+                        }
+                        else if (pos <= max - 200 && pos >= min - 190) {
+                            selectors.id.css(
+                                "background-image",
+                                "url(" +
+                                $(this)
+                                    .find(selectors.img)
+                                    .attr("src") +
+                                ")"
+                            );
+                            selectors.item.removeClass(selectors.activeClass);
+                            $(this).addClass(selectors.activeClass);
+                            $(".music").each(function () {
+                                this.pause();
+                            });
+                            $(this).find('.music')[0].play();
+                        }
+
+                    });
+                });
+            };
+        })(jQuery)
+
+        $("#shell").timeline();
+
+        let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        let audioElement = document.querySelector('audio');
+        let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let canvas = document.getElementById('canvas');
+        let ctx = canvas.getContext('2d');
+        let analyzer = audioCtx.createAnalyser();
+
+        analyzer.fftSize = 256; // 降低fftSize以获取更大的幅度
+        analyzer.smoothingTimeConstant = 0.2; // 设置更大的smoothingTimeConstant以获取更柔和的波动
+
+
+        let bufferLength = analyzer.frequencyBinCount;
+        let dataArray = new Uint8Array(bufferLength);
+        let activeAudioElement;
+
+        // 绘制波形图的函数
+        function draw() {
+            requestAnimationFrame(draw);
+            analyzer.getByteTimeDomainData(dataArray);
+
+            ctx.fillStyle = 'rgb(200, 200, 200)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = 'white';
+
+            ctx.beginPath();
+
+            let sliceWidth = canvas.width * 1.0 / bufferLength;
+            let x = 0;
+
+            for (let i = 0; i < bufferLength; i++) {
+                let v = dataArray[i] / 128.0;
+                let y = v * canvas.height / 2;
+
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+
+                x += sliceWidth;
+            }
+
+            ctx.lineTo(canvas.width, canvas.height / 2);
+            ctx.stroke();
+        }
+
+        $(window).scroll(function () {
+            // 当滚动时，检查当前激活的音频元素并连接到分析器
+            let currentAudioElement = $(".item--active audio")[0];
+            if (activeAudioElement !== currentAudioElement) {
+                if (activeAudioElement) {
+                    activeAudioElement.pause();
+                    activeAudioElement.currentTime = 0;
+                }
+                activeAudioElement = currentAudioElement;
+                let source = audioCtx.createMediaElementSource(activeAudioElement);
+                source.connect(analyzer);
+                analyzer.connect(audioCtx.destination);
+                activeAudioElement.play();
+            }
+        });
+
+        // 在页面加载完毕后开始绘制
+        window.onload = function () {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            draw();
+            setTimeout(function () {
+                document.getElementById("scrollPrompt").style.opacity = 1;
+            }, 1000);
+        }
+
+        // 如果窗口大小改变，更新画布的宽度和高度
+        window.onresize = function () {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        // 获取所有的 item 元素
+        var items = document.querySelectorAll('.item');
+
+        items.forEach(function (item) {
+            // 为每个 item 添加点击事件监听器
+            item.addEventListener('click', function () {
+                // 获取此 item 中的音频元素
+                var audio = item.querySelector('audio');
+
+                // 先暂停所有其他音频
+                items.forEach(function (otherItem) {
+                    var otherAudio = otherItem.querySelector('audio');
+                    if (otherAudio !== audio && !otherAudio.paused) {
+                        otherAudio.pause();
+                    }
+                });
+
+                // 创建一个 Map 对象来存储每个音频元素对应的 MediaElementSourceNode
+                let audioSources = new Map();
+
+                items.forEach(function (item) {
+                    item.addEventListener('click', function () {
+                        // 只在用户交互后创建和启动 AudioContext
+                        let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                        let audio = item.querySelector('audio');
+                        items.forEach(function (otherItem) {
+                            var otherAudio = otherItem.querySelector('audio');
+                            if (otherAudio !== audio && !otherAudio.paused) {
+                                otherAudio.pause();
+                                otherAudio.currentTime = 0;
+                            }
+                        });
+
+                        if (!audio.paused) {
+                            audio.pause();
+                            audio.currentTime = 0;
+                        } else {
+                            // 如果 Map 中已经存在此音频元素的 MediaElementSourceNode，则直接获取；否则，创建一个新的并添加到 Map 中
+                            let source = audioSources.get(audio) || audioCtx.createMediaElementSource(audio);
+                            audioSources.set(audio, source);
+                            // 连接到分析器并播放音频
+                            source.connect(analyzer);
+                            analyzer.connect(audioCtx.destination);
+                            audio.play();
+                        }
+                    });
+                });
+
+            });
+        })
+
+
+    </script>
+</body>
+
+</html>
