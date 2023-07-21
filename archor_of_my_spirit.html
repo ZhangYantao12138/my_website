@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- 本页面参考b站：山羊の前端小屋 -->
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人网页-我的精神家园</title>
+    <style>
+        html,
+        body {
+            font-family: "宋体", sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 200vh;
+            overflow-x: hidden;
+        }
+
+        .background {
+            background-image: url("images/mountain range.jpg");
+            background-size: cover;
+            background-position: 40% 50%;
+            height: 200vh;
+            font: 900 25rem '';
+            line-height: 130vh;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .background::before {
+            content: '';
+            background-size: cover;
+            background-image: inherit;
+            background-position: 40% 50%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            z-index: -99;
+        }
+
+        h1 {
+            position: absolute;
+            text-align: center;
+            width: 100%;
+            letter-spacing: 10px;
+            color: #fff;
+        }
+
+        h2 {
+            position: absolute;
+            text-align: center;
+            letter-spacing: 3px;
+            top: 120vh;
+            width: 60%;
+            color: #fff;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 30px;
+            background-color: rgba(12, 12, 13, 0.2);
+        }
+    </style>
+</head>
+
+<body>
+    <h1><br />我的精神家园</h1>
+    <div class="background"><span>章言韬</span></div>
+    <h2>
+        明天早上，我就要走上前往湘西风凰寨的不归路。<br /><br />
+        薛嵩要到那里和红线汇合，我要回到万寿寺和白衣女人汇合。<br /><br />
+        长安城里的一切已经结束。<br /><br />
+        一切都在无可挽回地走向庸俗。<br /><br />
+    </h2>
+
+    <script>
+        const background = document.querySelector(".background")
+
+        document.addEventListener('scroll', () => {
+            const scrollY = window.scrollY
+            const totalHeight = window.innerHeight + window.scrollY
+
+            if (scrollY !== 0) {
+                background.style.backgroundPosition = `calc(50% + ${scrollY}px) calc(50% + ${scrollY}px)`
+            } else {
+                background.style.backgroundPosition = ''
+            }
+
+            // 页面滑动到最底部时，跳转到另一个页面
+            if (totalHeight >= document.documentElement.scrollHeight) {
+                window.location.href = "https://www.example.com"; // 替换为跳转的页面的URL
+            }
+        })
+    </script>
+</body>
+
+</html>
