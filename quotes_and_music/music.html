@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>音乐界面</title>
+    <title>我的精神家园-音乐</title>
 
     <style>
         * {
@@ -23,6 +23,22 @@
             height: 100%;
         }
 
+        #backButton {
+            position: fixed;
+            /* Fixes the position of the button to the top-left of the page */
+            top: 30px;
+            /* Position from the top */
+            left: 20px;
+            /* Position from the left */
+            z-index: 10;
+        }
+
+        #backButton img {
+            width: 25px;
+            /* Adjust as needed */
+            height: 25px;
+            /* Adjust as needed */
+        }
 
         .shell {
             width: 100%;
@@ -49,6 +65,23 @@
             margin-bottom: 80px;
             position: relative;
         }
+
+        #scrollPrompt {
+            position: absolute;
+            font-family: simsun;
+            top: 150%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #eeeeee;
+            font-size: 15px;
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            border-radius: 5px;
+            opacity: 0;
+            transition: opacity 1s;
+        }
+
 
         .title {
             color: #fff;
@@ -216,11 +249,17 @@
 </head>
 
 <body>
+    <a href="/archor_of_my_spirit.html" id="backButton">
+        <img src="/images/返回.svg" alt="Back">
+    </a>
     <canvas id="canvas"></canvas>
     <div class="shell" id="shell">
         <div class="header">
             <h2 class="title">月度音乐墙</h2>
             <h3 class="subtitle">-我的精神家园-</h3>
+            <div id="scrollPrompt">
+                <滑动页面开始播放>
+            </div>
         </div>
         <div class="timeline">
             <div class="item" data-text="吟游诗人-陈奕迅">
@@ -359,7 +398,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 
     <script>
-
         (function ($) {
             $.fn.timeline = function () {
                 var selectors = {
@@ -379,6 +417,7 @@
                 );
                 var itemLength = selectors.item.length;
                 $(window).scroll(function () {
+                    document.getElementById("scrollPrompt").style.opacity = 0;
                     var max, min;
                     var pos = $(this).scrollTop();
                     selectors.item.each(function (i) {
@@ -494,6 +533,9 @@
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
             draw();
+            setTimeout(function () {
+                document.getElementById("scrollPrompt").style.opacity = 1;
+            }, 1000);
         }
 
         // 如果窗口大小改变，更新画布的宽度和高度
@@ -550,7 +592,7 @@
                 });
 
             });
-        });
+        })
 
 
     </script>

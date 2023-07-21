@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>我的精神家园-书摘</title>
+    <link rel="stylesheet" type="text/css"
+        href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap">
+    <link rel="stylesheet" type="text/css"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        body {
+            width: 100vw;
+            height: 100vh;
+            /* display: flex; */
+            justify-content: center;
+            align-items: center;
+            background-image: linear-gradient(to top, rgb(138, 135, 151) 0%, #98aac9 100%);
+        }
+
+        #backButton {
+            position: fixed;
+            /* Fixes the position of the button to the top-left of the page */
+            top: 30px;
+            /* Position from the top */
+            left: 20px;
+            /* Position from the left */
+            z-index: 10;
+        }
+
+        #backButton img {
+            width: 25px;
+            /* Adjust as needed */
+            height: 25px;
+            /* Adjust as needed */
+        }
+
+        #bgCanvas {
+            position: absolute;
+            z-index: -1;
+        }
+
+        #title_image {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 90vh;
+            /* Adjust this value to fit your needs */
+        }
+
+
+        .control-panel {
+            display: flex;
+            justify-content: space-between;
+            width: 60%;
+            margin: 30px 280px;
+            padding-left: 50px;
+
+        }
+
+        #myInput {
+            padding: 10px;
+            margin-right: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #eeeeee;
+            color: #333333;
+            width: 100%;
+        }
+
+        .control-panel img {
+            margin-top: 7px;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 0
+        }
+
+        #quote-box {
+            position: relative;
+            height: 80vh;
+            width: 60%;
+            overflow: auto;
+            margin: 20px auto;
+            padding-left: 50px;
+            height: 80vh;
+            overflow-y: auto;
+            /* 只显示垂直滚动条 */
+            overflow-x: hidden;
+            /* 隐藏水平滚动条 */
+            scrollbar-width: thin;
+            scrollbar-color: white rgba(255, 255, 255, 0.2);
+        }
+
+        /* 定义滚动条的宽度 */
+        #quote-box::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        /* 定义滚动条轨道的样式 */
+        #quote-box::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.2);
+            /* 透明白色 */
+        }
+
+        /* 定义滚动条的样式 */
+        #quote-box::-webkit-scrollbar-thumb {
+            background: #ffffff;
+            /* 白色 */
+        }
+
+        /* 定义滚动条滑过的样式 */
+        #quote-box::-webkit-scrollbar-thumb:hover {
+            background: #c4ced5;
+            /* 滑过时的颜色，可根据需要进行调整 */
+        }
+
+        .quote {
+            font-family: SimSun, serif;
+            font-size: 18px;
+            border: 1px solid #ccc;
+            margin: 10px 0;
+            padding: 40px;
+            border-radius: 10px;
+            text-indent: 3em;
+            position: relative;
+            background: white;
+            transition: all 0.3s ease;
+            /* 添加过渡效果 */
+            opacity: 0.9;
+        }
+
+        .quote:hover {
+            transform: scale(1.02);
+            /* 添加放大效果 */
+            z-index: 2;
+            /* 保持hover的项在其他项之上 */
+        }
+
+        #quote-box:hover .quote {
+            opacity: 0.6;
+            /* 当任何摘抄项被hover时，调暗所有摘抄项的背景 */
+        }
+
+        #quote-box .quote:hover {
+            opacity: 1;
+            /* 保持当前hover的摘抄项背景亮度不变 */
+        }
+
+        .quote::after {
+            content: "";
+            position: absolute;
+            left: -26px;
+            top: 0;
+            width: 2px;
+            height: 100%;
+            background: #ffffff;
+            /* 修改颜色为白色 */
+        }
+
+
+        .author {
+            display: block;
+            margin-top: 10px;
+            text-align: right;
+        }
+
+        #random-quote {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 24px;
+            text-align: center;
+            display: block;
+            /* 新增 */
+            visibility: hidden;
+            /* 新增 */
+        }
+
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0);
+            transition: background 0.5s ease;
+            display: block;
+            /* 新增 */
+            visibility: hidden;
+            /* 新增 */
+        }
+    </style>
+    <script src="quotes.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.0.11/typed.min.js"></script>
+    <script>
+        window.onload = function () {
+            let canvas = document.getElementById('bgCanvas');
+            let ctx = canvas.getContext('2d');
+
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            window.addEventListener('resize', function () {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                initLines();
+            });
+
+            let lines = [];
+            function initLines() {
+                lines = [];
+                for (let i = 0; i < 100; i++) {
+                    lines.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        length: Math.random() * 100,
+                        speed: Math.random() * 5,
+                        opacity: 0,
+                        fadingIn: true,
+                    });
+                }
+            }
+            initLines();
+
+            function drawLines() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                for (let line of lines) {
+                    ctx.beginPath();
+                    ctx.moveTo(line.x, line.y);
+                    ctx.lineTo(line.x + line.length, line.y + line.length);
+                    let gradient = ctx.createLinearGradient(line.x, line.y, line.x + line.length, line.y + line.length);
+                    gradient.addColorStop(1, `rgba(255, 255, 255, ${line.opacity})`);
+                    gradient.addColorStop(0, 'rgba(255, 255, 255, 0)');
+                    ctx.strokeStyle = gradient;
+                    ctx.stroke();
+
+                    line.x += line.speed;
+                    line.y += line.speed;
+
+                    if (line.fadingIn) {
+                        line.opacity += 0.01;
+                        if (line.opacity >= 1) {
+                            line.fadingIn = false;
+                        }
+                    } else {
+                        line.opacity -= 0.01;
+                        if (line.opacity <= 0) {
+                            line.x = Math.random() * canvas.width;
+                            line.y = Math.random() * canvas.height;
+                            line.length = Math.random() * 100;
+                            line.speed = Math.random() * 5;
+                            line.fadingIn = true;
+                        }
+                    }
+                }
+            }
+
+            setInterval(drawLines, 50);
+            const quoteBox = document.getElementById('quote-box');
+            quotes.forEach(function (quote) {
+                const div = document.createElement('div');
+                let author = quote.split("——")[1];
+                const text = quote.split("——")[0];
+                // 判断作者是否存在，如果不存在则不显示
+                author = author ? `——${author}` : '';
+                div.innerHTML = `${text}<span class="author">${author}</span>`;
+                div.className = 'quote';
+                quoteBox.appendChild(div);
+            });
+        };
+
+
+        function searchQuote() {
+            let input, filter, box, div, i, txtValue;
+            input = document.getElementById("myInput");
+            filter = input.value.toUpperCase();
+            box = document.getElementById("quote-box");
+            div = box.getElementsByTagName("div");
+            for (i = 0; i < div.length; i++) {
+                txtValue = div[i].textContent || div[i].innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    div[i].style.display = "";
+                } else {
+                    div[i].style.display = "none";
+                }
+            }
+        }
+        let typed;
+        function showRandomQuote() {
+            const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+            let author = randomQuote.split("——")[1];
+            const text = randomQuote.split("——")[0];
+            // 判断作者是否存在，如果不存在则不显示
+            author = author ? `——${author}` : '';
+            const formattedQuote = `<p style="text-indent: 3em;text-align: left;">${text}</p><p class="author">${author}</p>`;
+            document.getElementById('overlay').style.visibility = 'visible';
+            document.getElementById('overlay').style.background = 'rgba(0, 0, 0, 0.7)';
+            if (typed) typed.destroy();
+            document.getElementById('random-quote').innerHTML = "";
+            typed = new Typed('#random-quote', {
+                strings: [formattedQuote],
+                typeSpeed: 80,
+                showCursor: false
+            });
+            document.getElementById('random-quote').style.visibility = 'visible';
+        }
+        function hideRandomQuote() {
+            document.getElementById('overlay').style.background = 'rgba(0, 0, 0, 0)';
+            setTimeout(function () {
+                document.getElementById('overlay').style.visibility = 'hidden';
+            }, 500);
+            document.getElementById('random-quote').style.visibility = 'hidden';
+        }
+    </script>
+</head>
+
+<body>
+    <a href="/archor_of_my_spirit.html" id="backButton">
+        <img src="/images/返回.svg" alt="Back">
+    </a>
+    <img id="title_image" src="/quotes_and_music/img/风中的纸屑.png" alt="Your image">
+    <div class="control-panel">
+        <input type="text" id="myInput" onkeyup="searchQuote()" placeholder="">
+        <img src="./img/arrow-random.svg" alt="随机图标" onclick="showRandomQuote()"
+            style="width:24px;height:24px;cursor:pointer;">
+    </div>
+
+    <div id="quote-box"><!-- 摘抄将会在这里动态生成 --></div>
+    <div id="overlay" onclick="hideRandomQuote()"></div>
+    <div id="random-quote"></div>
+    <canvas id="bgCanvas"></canvas>
+
+</body>
+
+</html>

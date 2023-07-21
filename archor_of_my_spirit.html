@@ -17,12 +17,29 @@
             overflow-x: hidden;
         }
 
+        #backButton {
+            position: fixed;
+            /* Fixes the position of the button to the top-left of the page */
+            top: 30px;
+            /* Position from the top */
+            left: 20px;
+            /* Position from the left */
+            z-index: 10;
+        }
+
+        #backButton img {
+            width: 25px;
+            /* Adjust as needed */
+            height: 25px;
+            /* Adjust as needed */
+        }
+
         .background {
             background-image: url("images/mountain range.jpg");
             background-size: cover;
             background-position: 40% 50%;
             height: 200vh;
-            font: 900 25rem '';
+            font: 900 20rem '';
             line-height: 130vh;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -47,7 +64,7 @@
         h1 {
             position: absolute;
             text-align: center;
-            width: 100%;
+            width: 104%;
             letter-spacing: 10px;
             color: #fff;
         }
@@ -64,12 +81,116 @@
             padding: 30px;
             background-color: rgba(12, 12, 13, 0.2);
         }
+
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background-color: rgba(128, 128, 128, 0.3);
+            animation: pulse linear infinite;
+            z-index: 10;
+            transition: 0.5s
+        }
+
+        .bubble img {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50%;
+            opacity: 0.8;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .bubble:hover {
+            background-color: rgba(128, 128, 128, 0.15);
+        }
+
+        .bubble:hover img {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1.2);
+        }
+
+        /* Bubble animations */
+
+        @keyframes pulse1 {
+            0% {
+                transform: scale(0.95);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(0.95);
+            }
+        }
+
+        @keyframes pulse2 {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes pulse3 {
+            0% {
+                transform: scale(1.05);
+            }
+
+            50% {
+                transform: scale(0.95);
+            }
+
+            100% {
+                transform: scale(1.05);
+            }
+        }
+
+        /* Bubble sizes and positions */
+
+        .bubble1 {
+            width: 100px;
+            height: 100px;
+            top: 20%;
+            left: 35%;
+            animation-name: pulse1;
+        }
+
+        .bubble2 {
+            width: 100px;
+            height: 100px;
+            top: 20%;
+            left: 50%;
+            animation-name: pulse2;
+        }
+
+        .bubble3 {
+            width: 100px;
+            height: 100px;
+            top: 20%;
+            left: 65%;
+            animation-name: pulse3;
+        }
     </style>
 </head>
 
 <body>
-    <h1><br />我的精神家园</h1>
-    <div class="background"><span>章言韬</span></div>
+    <a href="/index.html" id="backButton">
+        <img src="/images/返回.svg" alt="Back">
+    </a>
+    <h1><br />-我的精神家园-</h1>
+    <div class="bubble bubble1" onclick="bubbleClicked(1)"><img src="/quotes_and_music/img/音乐.svg" /></div>
+    <div class="bubble bubble2" onclick="bubbleClicked(2)"><img src="/quotes_and_music/img/笔记.svg" /></div>
+    <div class="bubble bubble3" onclick="bubbleClicked(3)"><img src="/quotes_and_music/img/相机.svg" /></div>
+    <div class="background"><span>ARCHOR</span></div>
     <h2>
         明天早上，我就要走上前往湘西风凰寨的不归路。<br /><br />
         薛嵩要到那里和红线汇合，我要回到万寿寺和白衣女人汇合。<br /><br />
@@ -95,6 +216,20 @@
                 window.location.href = "./quotes_and_music/music.html"; // 替换为跳转的页面的URL
             }
         })
+        function bubbleClicked(number) {
+            // 替换为跳转的页面的URL
+            switch (number) {
+                case 1:
+                    window.location.href = "./quotes_and_music/music.html";
+                    break;
+                case 2:
+                    window.location.href = "./quotes_and_music/quote.html";
+                    break;
+                case 3:
+                    window.location.href = "./quotes_and_music/photo.html";
+                    break;
+            }
+        }
     </script>
 </body>
 

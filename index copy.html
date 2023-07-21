@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>主页-导航页</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: linear-gradient(to top, rgb(138, 135, 151) 0%, #98aac9 100%);
+        }
+
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 0
+        }
+
+        .shell {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card {
+            width: 270px;
+            height: 545px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            padding: 0 25px;
+            perspective: 2500px;
+            transition: all 0.4s;
+            margin: 0 100px;
+            z-index: 10;
+        }
+
+        .cover-image {
+            width: 100%;
+            height: 100%;
+        }
+
+        .wrapper {
+            transition: all 0.3s;
+            position: absolute;
+            width: 100%;
+            z-index: -1;
+        }
+
+        .card:hover .wrapper {
+            transform: perspective(900px) translateY(-5%) rotateX(25deg) translateZ(0);
+            box-shadow: 2px 35px 32px -8px rgba(0, 0, 0, 0.75);
+            filter: brightness(0.65);
+        }
+
+        .wrapper::before,
+        .wrapper::after {
+            content: "";
+            opacity: 0;
+            width: 100%;
+            height: 80px;
+            transition: all 0.3s;
+            position: absolute;
+            left: 0;
+        }
+
+        .wrapper::before {
+            top: 0;
+            height: 100%;
+            background-image: linear-gradient(to top,
+                    transparent 30%,
+                    rgba(68, 72, 92)) 50%,
+                rgb(68, 72, 92) 100%);
+        }
+
+        .wrapper::after {
+            bottom: 0;
+            opacity: 1;
+            /* background-image: linear-gradient(to bottom,
+                    transparent 46%,
+                    rgba(12, 13, 19, 0.5) 68%,
+                    rgba(12, 13, 19) 97%); */
+            /* 这段可以用来给底部加上黑色阴影 */
+        }
+
+        .card:hover .wrapper::before,
+        .wrapper::after {
+            opacity: 1;
+        }
+
+        .card:hover .wrapper::after {
+            height: 120px;
+        }
+
+        .title {
+            width: 100%;
+            transition: transform 0.3s;
+        }
+
+        .card:hover .title {
+            transform: translate3d(0%, -50px, 100px);
+            filter: brightness(1);
+        }
+
+        .character {
+            width: 100%;
+            opacity: 0;
+            transition: all 0.3s;
+            position: absolute;
+            z-index: -1;
+        }
+
+        .card:hover .character {
+            opacity: 1;
+            transform: translate3d(0%, -20%, 100px);
+        }
+
+        .card:hover {
+            transform: translateY(40px);
+        }
+
+        .danmu {
+            position: absolute;
+            white-space: nowrap;
+            font-family: 'SimSun', sans-serif;
+            color: white;
+            transition: opacity 0.5s;
+            z-index: 1;
+        }
+    </style>
+    <script src="./quotes.js"></script>
+    <!-- 通过js文件导入书摘内容 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+
+    <script>
+
+        window.onload = () => {
+            let mouseOverCard = false;
+            const shell = document.querySelector('.shell');
+            shell.onmouseover = () => {
+                mouseOverCard = true;
+                updateDanmuColor('rgb(128, 128, 128)');
+            };
+            shell.onmouseout = () => {
+                mouseOverCard = false;
+                updateDanmuColor('white');
+            };
+
+            setInterval(() => {
+                const quote = quotes[Math.floor(Math.random() * quotes.length)];
+                showDanmu(quote, mouseOverCard ? 'rgb(128, 128, 128)' : 'white');
+            }, 3000);
+
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card) => {
+                card.onmouseenter = playAudio;
+                card.onmouseleave = pauseAudio;
+            });
+            cards.forEach((card) => {
+                card.onmouseenter = playAudio;
+                card.onmouseleave = pauseAudio;
+                card.onclick = navigateToPage;  // 新增：给每个卡片添加点击事件处理器
+            });
+
+            function navigateToPage(e) {
+                const pageURL = e.currentTarget.dataset.url;  // 获取卡片对应的页面 URL
+                if (pageURL) {
+                    window.location.href = pageURL;  // 跳转到新页面
+                }
+            }
+
+        }
+
+        function playAudio(e) {
+            const audioPath = e.currentTarget.dataset.audio;  // 获取卡片对应的音频路径
+            let audio = document.querySelector(`audio[src="${audioPath}"]`);  // 尝试获取已经存在的 audio 元素
+            if (!audio) {
+                audio = new Audio(audioPath);  // 如果不存在，则新建一个 audio 元素
+                audio.loop = true;  // 设置音频为循环播放
+                document.body.appendChild(audio);
+            }
+            audio.play();  // 播放音频
+        }
+
+        function pauseAudio(e) {
+            const audioPath = e.currentTarget.dataset.audio;
+            const audio = document.querySelector(`audio[src="${audioPath}"]`);
+            if (audio) {
+                audio.pause();  // 暂停音频
+            }
+        }
+
+
+        function showDanmu(text, color) {
+            const danmu = document.createElement('div');
+            danmu.classList.add('danmu');
+            danmu.textContent = text;
+            danmu.style.color = color;
+            danmu.style.fontSize = `${Math.random() * 10 + 20}px`;
+            danmu.style.top = `${Math.random() * window.innerHeight}px`;
+            danmu.style.left = `${window.innerWidth}px`;
+            danmu.style.opacity = '1';
+            document.body.appendChild(danmu);
+
+            const animation = danmu.animate([
+                { transform: 'translateX(0)' },
+                { transform: `translateX(-${window.innerWidth + danmu.offsetWidth}px)` }
+            ], {
+                duration: Math.random() * 10000 + 10000,
+                easing: 'linear'
+            });
+
+            animation.onfinish = () => {
+                document.body.removeChild(danmu);
+            };
+        }
+
+        function updateDanmuColor(color) {
+            const danmus = document.querySelectorAll('.danmu');
+            for (const danmu of danmus) {
+                danmu.style.color = color;
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <div class="shell">
+        <div class="card" id="card1" data-url="archor_of_my_spirit.html">
+            <div class="wrapper">
+                <img src="./images/卡片背景图片02.png" alt="" class="cover-image">
+            </div>
+            <img src="./images/卡片文字说明01.png" alt="" class="title">
+            <img src="./images/卡片名言01.png" alt="" class="character">
+        </div>
+        <div class="card" id="card2" data-url="page1.html">
+            <div class="wrapper">
+                <img src="./images/卡片背景图片01.png" alt="" class="cover-image">
+            </div>
+            <img src="./images/卡片文字说明02.png" alt="" class="title">
+            <img src="./images/卡片名言02.png" alt="" class="character">
+        </div>
+
+        <div class="card" id="card3" data-url="page1.html">
+            <div class="wrapper">
+                <img src="./images/卡片背景图片03.png" alt="" class="cover-image">
+            </div>
+            <img src="./images/卡片文字说明03.png" alt="" class="title">
+            <img src="./images/卡片名言03.png" alt="" class="character">
+        </div>
+    </div>
+    <canvas id="bgCanvas"></canvas>
+    <script>
+        let canvas = document.getElementById('bgCanvas');
+        let ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', function () {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initLines();
+        });
+
+        let lines = [];
+        function initLines() {
+            lines = [];
+            for (let i = 0; i < 100; i++) {
+                lines.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    length: Math.random() * 100,
+                    speed: Math.random() * 5,
+                    opacity: 0,
+                    fadingIn: true,
+                });
+            }
+        }
+        initLines();
+
+        function drawLines() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let line of lines) {
+                ctx.beginPath();
+                ctx.moveTo(line.x, line.y);
+                ctx.lineTo(line.x + line.length, line.y + line.length);
+                let gradient = ctx.createLinearGradient(line.x, line.y, line.x + line.length, line.y + line.length);
+                gradient.addColorStop(1, `rgba(255, 255, 255, ${line.opacity})`);
+                gradient.addColorStop(0, 'rgba(255, 255, 255, 0)');
+                ctx.strokeStyle = gradient;
+                ctx.stroke();
+
+                line.x += line.speed;
+                line.y += line.speed;
+
+                if (line.fadingIn) {
+                    line.opacity += 0.01;
+                    if (line.opacity >= 1) {
+                        line.fadingIn = false;
+                    }
+                } else {
+                    line.opacity -= 0.01;
+                    if (line.opacity <= 0) {
+                        line.x = Math.random() * canvas.width;
+                        line.y = Math.random() * canvas.height;
+                        line.length = Math.random() * 100;
+                        line.speed = Math.random() * 5;
+                        line.fadingIn = true;
+                    }
+                }
+            }
+        }
+
+        setInterval(drawLines, 50);
+
+    </script>
+</body>
+
+</html>
